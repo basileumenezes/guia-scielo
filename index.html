@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guia SciELO • App Web (SPA claro • conteúdo completo)</title>
+  <meta name="theme-color" content="#0ea5e9"/>
+  <style>
+    :root{
+      --bg:#f7f9fc; --surface:#ffffff; --muted:#5b6575; --text:#0f172a; --brand:#0ea5e9; --brand-2:#0284c7;
+      --card:#ffffff; --border:#d9e0ea; --shadow: 0 10px 20px rgba(10,16,28,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; background:linear-gradient(180deg,#f6f9ff,#eef3fb); color:var(--text);
+      font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans",sans-serif;
+      line-height:1.6; min-height:100vh; display:grid; grid-template-columns:300px 1fr}
+    a{color:var(--brand); text-decoration:none}
+    aside{position:sticky; top:0; height:100vh; overflow:auto; background:linear-gradient(180deg,#ffffff,#f3f6fb);
+      border-right:1px solid var(--border); padding:18px 16px}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800}
+    .logo{width:28px; height:28px; border-radius:8px; background: radial-gradient(circle at 30% 30%, var(--brand), #7dd3fc)}
+    nav .title{font-size:12px; color:#6b7280; margin:12px 8px; text-transform:uppercase; letter-spacing:.12em}
+    nav a{display:block; padding:8px 10px; margin:4px 6px; border-radius:10px; color:#0f172a; border:1px solid transparent; cursor:pointer}
+    nav a:hover{background:#eef5ff; border-color:#cfe3ff}
+    nav a.active{background:#e6f3ff; border-color:#b6dcff; box-shadow: inset 0 0 0 1px #b6dcff}
+    header.top{position:sticky; top:0; z-index:10; background:rgba(255,255,255,.9); border-bottom:1px solid var(--border);
+      padding:14px 24px; display:flex; justify-content:space-between; align-items:center; backdrop-filter:blur(6px)}
+    .content{min-height:100vh; display:flex; flex-direction:column}
+    .container{padding:24px 28px; max-width:1000px}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; margin:16px 0; box-shadow:var(--shadow)}
+    .btn{border:1px solid #cfd9e6; background:#ffffff; color:#0f172a; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer; box-shadow:var(--shadow)}
+    .btn.primary{background:linear-gradient(180deg,#38bdf8,#0ea5e9); border-color:rgba(2,132,199,.3); color:white}
+    .chips{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:#fff; cursor:pointer}
+    .search{display:flex; gap:10px; align-items:center; border:1px solid var(--border); border-radius:12px; padding:8px 10px; background:#fff}
+    .search input{flex:1; background:transparent; border:none; outline:none; color:#0f172a; font-size:15px}
+    .list{padding-left:18px}
+    .grid{display:grid; gap:14px; grid-template-columns: repeat(2,minmax(0,1fr))}
+    .grid-3{display:grid; gap:14px; grid-template-columns: repeat(3,minmax(0,1fr))}
+    .note{font-size:13px; color:#4b5563}
+    footer{padding:8px 28px 28px; color:#4b5563}
+    .screen{display:none; opacity:0; transform:translateY(6px); transition:opacity .2s ease, transform .2s ease}
+    .screen.active{display:block; opacity:1; transform:none}
+    h2{margin:6px 0 10px}
+    h3{margin:12px 0 6px}
+    ul{margin:8px 0}
+    li{margin:4px 0}
+    code{background:#f2f6ff; padding:1px 6px; border-radius:6px; border:1px solid #e0eaf8}
+    .muted{color:#566072}
+    table{border-collapse:collapse; width:100%}
+    th,td{border:1px solid var(--border); padding:8px 10px; vertical-align:top}
+    th{background:#f1f6ff}
+    @media (max-width: 980px){
+      body{grid-template-columns:1fr}
+      aside{position:relative; height:auto}
+      header.top{position:sticky}
+    }
+  
+    .highlight-flash { animation: flashBg .9s ease; }
+    @keyframes flashBg { 0%{box-shadow:0 0 0 0 rgba(14,165,233,.0)} 30%{box-shadow:0 0 0 4px rgba(14,165,233,.25)} 100%{box-shadow:0 0 0 0 rgba(14,165,233,.0)} }
+    .result-item{padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:#fff; margin:8px 0; cursor:pointer}
+    .result-item:hover{background:#f7fbff}
+    .result-title{font-weight:700}
+    .result-meta{font-size:12px; color:#566072}
+    .result-snippet{font-size:14px; margin-top:4px}
+    mark{background: #fff3a3; padding: 0 2px; border-radius:3px}
+
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand"><div class="logo"></div> Guia SciELO</div>
+    <nav id="nav">
+      <div class="title">Navegação</div>
+      <a data-screen="intro" class="active">Introdução Geral</a>
+      <a data-screen="scielo">1. Apresentação & Relevância</a>
+      <a data-screen="acesso">2. Acesso e Navegação</a>
+      <a data-screen="estrategias">2.3 Estratégias de Busca</a>
+      <a data-screen="exemplos">2.4 Exemplos práticos</a>
+      <a data-screen="resultados">2.5 Como interpretar</a>
+      <a data-screen="texto">2.6 Texto completo</a>
+      <a data-screen="criterios">3. Seleção de Artigos (Checklist)</a>
+      <a data-screen="organizar">4. Salvar • Organizar • Citar</a>
+      <a data-screen="passos">5. Passo a Passo</a>
+      <a data-screen="erros">6. Erros Frequentes</a>
+    </nav>
+  </aside>
+
+  <div class="content">
+    <header class="top">
+
+      <div class="search" style="min-width:280px; width: 100%; max-width:520px">
+        <input id="globalQ" placeholder="Buscar em todo o guia… (mín. 2 letras)" aria-label="Buscar no guia"/>
+        <button class="btn" id="clearSearch" title="Limpar busca">Limpar</button>
+      </div>
+
+      
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn primary" id="openScielo">Abrir SciELO</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card" id="searchResults" style="display:none"></section>
+      <!-- INTRO -->
+      <section class="screen active" id="intro">
+        <div class="card">
+          <h2>Introdução Geral: Objetivo e Público-Alvo do Guia</h2>
+          <p>Este material foi elaborado como <strong>Guia Prático de Pesquisa Acadêmica</strong> destinado a apoiar alunos da Graduação em <strong>Pedagogia, Psicopedagogia e Educação Especial</strong> da UNINTER. Especialmente aqueles que enfrentam dificuldades na localização, seleção, organização e uso de fontes científicas confiáveis para seus trabalhos.</p>
+          <p>Seu propósito é orientar, passo a passo, o uso do <strong>Scientific Electronic Library Online (SciELO)</strong> – uma das principais bibliotecas eletrônicas de acesso aberto no Brasil – de modo alinhado às diretrizes do Manual de TCC da UNINTER e às normas da Associação Brasileira de Normas Técnicas (<strong>ABNT</strong>).</p>
+          <p>Ao longo do texto, cada seção apresenta não apenas informações descritivas, mas instruções aplicáveis na prática, para que o estudante possa:</p>
+          <ul class="list">
+            <li>Compreender a importância do SciELO como fonte acadêmica;</li>
+            <li>Realizar buscas eficientes usando estratégias adequadas;</li>
+            <li>Selecionar materiais de alta qualidade científica;</li>
+            <li>Organizar e citar referências conforme padrões exigidos.</li>
+          </ul>
+          <p>Assim, este guia atua como uma ferramenta de formação para a autonomia do pesquisador, capacitando o aluno a transformar seu levantamento bibliográfico em um diferencial na qualidade do Trabalho de Conclusão de Curso (TCC).</p>
+        </div>
+      </section>
+
+      <!-- SCIELO -->
+      <section class="screen" id="scielo">
+        <div class="card">
+          <h2>1. SciELO: Apresentação e Relevância Acadêmica</h2>
+          <p>Esta seção apresenta o SciELO como recurso essencial para a pesquisa acadêmica, evidenciando suas características, vantagens e aplicações diretas no desenvolvimento do TCC, especialmente para áreas de educação e tecnologias educacionais.</p>
+          <p>O <strong>Scientific Electronic Library Online (SciELO)</strong> é uma biblioteca eletrônica de acesso aberto criada no Brasil em 1998. Ela reúne periódicos científicos de diversas áreas do conhecimento, com abrangência nacional e internacional, especialmente da América Latina, Caribe, Espanha, Portugal e África do Sul.</p>
+          <p>Sua missão central é democratizar o acesso à produção científica e garantir visibilidade global às pesquisas realizadas nessas regiões. Isso significa que qualquer estudante ou pesquisador pode acessar artigos de qualidade, sem barreiras de pagamento, para fundamentar seus estudos e trabalhos acadêmicos.</p>
+          <p>Diferentemente de buscadores genéricos da internet, como Google ou Bing – que podem trazer resultados de confiabilidade variável –, o SciELO indexa apenas publicações que passaram por rigorosos critérios de avaliação. Os artigos ali disponíveis foram submetidos ao processo de <strong>revisão por pares</strong>, no qual especialistas da área analisam e validam o conteúdo antes da publicação.</p>
+          <p>Essa característica garante:</p>
+          <ul class="list">
+            <li><strong>Credibilidade e validade científica</strong> – requisito essencial para qualquer produção acadêmica, incluindo TCC, dissertação ou tese;</li>
+            <li><strong>Confiabilidade na citação</strong> – os artigos possuem dados bibliográficos completos e padronizados, facilitando a elaboração das referências.</li>
+          </ul>
+          <p>No contexto do Manual de TCC, o uso do SciELO está diretamente ligado às seguintes orientações:</p>
+          <ul class="list">
+            <li><strong>Critérios de seleção de fontes</strong> – priorizar publicações confiáveis, atualizadas e reconhecidas academicamente;</li>
+            <li><strong>Revisão de literatura fundamentada</strong> – utilizar artigos indexados reforça a argumentação e a base teórica;</li>
+            <li><strong>Rastreabilidade da informação</strong> – toda citação deve permitir localizar a fonte original, algo facilitado pelo padrão do SciELO.</li>
+          </ul>
+          <p>Além da relevância científica, o SciELO também desempenha papel importante na inclusão acadêmica, pois remove barreiras financeiras que limitam o acesso a outras bases, como Scopus ou Web of Science.</p>
+          <p>Para alunos de Pedagogia, Psicopedagogia e Educação Especial, isso significa:</p>
+          <ul class="list">
+            <li>Acesso à produção científica brasileira nas áreas da educação, psicologia, ciências sociais aplicadas e tecnologia educacional;</li>
+            <li>Contato com estudos empíricos, revisões teóricas e pesquisas de intervenção aplicáveis à prática docente;</li>
+            <li>Aplicar resultados de pesquisa diretamente em problemas reais do contexto escolar e comunitário, integrando ensino, pesquisa e extensão.</li>
+          </ul>
+          <p>O SciELO, portanto, não é apenas uma ferramenta para localizar artigos, mas uma porta de entrada para a comunidade científica, permitindo dialogar com pesquisas atuais e sustentar ideias com evidências reconhecidas.</p>
+        </div>
+      </section>
+
+      <!-- ACESSO -->
+      <section class="screen" id="acesso">
+        <div class="card">
+          <h2>2. Acesso e Navegação no SciELO</h2>
+          <h3>2.1. Como Acessar</h3>
+          <ul class="list">
+            <li>Endereço oficial: <a href="https://scielo.org" target="_blank" rel="noopener">https://scielo.org</a></li>
+            <li>Não é necessário cadastro para leitura ou download;</li>
+            <li>Interface disponível em português, inglês e espanhol.</li>
+          </ul>
+          <p>Conforme o Manual de TCC, é fundamental iniciar a pesquisa em bases oficiais como o SciELO.</p>
+
+          <h3>2.2. Estrutura da Página Inicial</h3>
+          <ul class="list">
+            <li><strong>Caixa de busca principal</strong>: digite palavras-chave ou expressões relacionadas ao tema;</li>
+            <li><strong>Filtros de pesquisa</strong>: refine por autor, título, periódico, ano, assunto, país, idioma, tipo de documento;</li>
+            <li><strong>Acesso por áreas temáticas</strong>: explore categorias como Ciências Humanas, Ciências da Saúde, Linguística, etc.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ESTRATÉGIAS -->
+      <section class="screen" id="estrategias">
+        <div class="card">
+          <h2>2.3. Estratégias de Busca Eficiente</h2>
+          <p>Ensinar a planejar palavras‑chave e usar operadores booleanos para tornar a pesquisa precisa e relevante.</p>
+          <ul class="list">
+            <li><strong>Palavras‑chave</strong>: escolha termos claros (ex.: “educação inclusiva”, “tecnologias educacionais”);</li>
+            <li><strong>Aspas</strong> (<code>" "</code>): expressão exata (ex.: <code>"ensino híbrido"</code>);</li>
+            <li><strong>AND</strong>: inclui todos os termos (ex.: <code>"educação a distância" AND "aprendizagem ativa"</code>);</li>
+            <li><strong>OR</strong>: alternativas (ex.: <code>"avaliação formativa" OR "avaliação diagnóstica"</code>);</li>
+            <li><strong>NOT</strong>: exclui termos (ex.: <code>"avaliação formativa" NOT "educação infantil"</code>).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- EXEMPLOS -->
+      <section class="screen" id="exemplos">
+        <div class="card">
+          <h2>2.4. Exemplos Práticos de Busca</h2>
+          <ul class="list">
+            <li><strong>Pedagogia</strong>: <code>"avaliação formativa" AND "educação básica"</code> → estratégias avaliativas no ensino fundamental;</li>
+            <li><strong>Psicopedagogia</strong>: <code>"transtorno de aprendizagem" AND "intervenção escolar"</code> → práticas de intervenção com evidência;</li>
+            <li><strong>Educação Especial</strong>: <code>"gamificação" AND "ensino superior"</code> → uso de jogos no ensino universitário.</li>
+          </ul>
+          <div class="chips" style="margin-top:10px">
+            <span class="chip" data-open='"avaliação formativa" AND "educação básica"'>Abrir Pedagogia</span>
+            <span class="chip" data-open='"transtorno de aprendizagem" AND "intervenção escolar"'>Abrir Psicopedagogia</span>
+            <span class="chip" data-open='"gamificação" AND "ensino superior"'>Abrir Educação Especial</span>
+            <span class="chip" data-open='"ensino híbrido" AND "metodologias ativas"'>Abrir Metodologias</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESULTADOS -->
+      <section class="screen" id="resultados">
+        <div class="card">
+          <h2>2.5. Como Interpretar os Resultados</h2>
+          <p>O Manual de TCC recomenda observar:</p>
+          <ul class="list">
+            <li><strong>Título</strong>: aborda diretamente o tema;</li>
+            <li><strong>Resumo</strong>: responde à questão de pesquisa;</li>
+            <li><strong>Ano de publicação</strong>: priorizar últimos 5 anos (exceto clássicos);</li>
+            <li><strong>Periódico</strong>: preferir revistas conceituadas (ex.: Educação &amp; Sociedade, Revista Brasileira de Educação);</li>
+            <li><strong>Metodologia</strong>: clareza e adequação do método utilizado.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TEXTO COMPLETO -->
+      <section class="screen" id="texto">
+        <div class="card">
+          <h2>2.6. Acesso ao Texto Completo</h2>
+          <ul class="list">
+            <li>Ler online;</li>
+            <li>Baixar gratuitamente em PDF;</li>
+            <li>Compartilhar por link direto.</li>
+          </ul>
+          <p>Facilita a conformidade com a ABNT, pois a página do artigo traz os dados bibliográficos.</p>
+        </div>
+      </section>
+
+      <!-- CRITÉRIOS / CHECKLIST -->
+      <section class="screen" id="criterios">
+        <div class="card">
+          <h2>3. Critérios para Seleção de Artigos no SciELO</h2>
+          <p>A escolha das referências científicas é determinante para a qualidade do TCC. Este checklist ajuda a selecionar artigos de alta qualidade.</p>
+          <div class="grid">
+            <div>
+              <h3>A) Pertinência ao tema</h3>
+              <ul class="list">
+                <li>Título corresponde ao assunto?</li>
+                <li>Resumo confirma o foco?</li>
+                <li>Responde à questão de pesquisa/objetivo geral?</li>
+              </ul>
+              <label><input type="checkbox" class="chk"> Título corresponde ao assunto.</label><br/>
+              <label><input type="checkbox" class="chk"> Resumo confirma o foco.</label><br/>
+              <label><input type="checkbox" class="chk"> Responde ao objetivo geral.</label>
+            </div>
+            <div>
+              <h3>B) Qualidade científica</h3>
+              <ul class="list">
+                <li>Periódico indexado (revisão por pares)?</li>
+                <li>Clareza metodológica?</li>
+                <li>Referências confiáveis e atuais? Coerência argumentativa?</li>
+              </ul>
+              <label><input type="checkbox" class="chk"> Periódico indexado.</label><br/>
+              <label><input type="checkbox" class="chk"> Metodologia clara.</label><br/>
+              <label><input type="checkbox" class="chk"> Referências confiáveis e atuais.</label>
+            </div>
+            <div>
+              <h3>C) Atualidade</h3>
+              <ul class="list">
+                <li>Publicado nos últimos 5 anos (salvo clássicos)?</li>
+                <li>Conclusões/dados ainda válidos?</li>
+              </ul>
+              <label><input type="checkbox" class="chk"> Últimos 5 anos.</label><br/>
+              <label><input type="checkbox" class="chk"> Dados ainda válidos.</label>
+            </div>
+            <div>
+              <h3>D) Relevância para o embasamento teórico</h3>
+              <ul class="list">
+                <li>Contribui com conceitos/teorias/modelos aplicáveis?</li>
+                <li>Apresenta dados empíricos que reforçam a argumentação?</li>
+                <li>Pode ser citado diretamente no TCC?</li>
+              </ul>
+              <label><input type="checkbox" class="chk"> Conceitos/teorias aplicáveis.</label><br/>
+              <label><input type="checkbox" class="chk"> Dados empíricos úteis.</label><br/>
+              <label><input type="checkbox" class="chk"> Pode ser citado diretamente.</label>
+            </div>
+            <div>
+              <h3>E) Conformidade com a ABNT</h3>
+              <ul class="list">
+                <li>Dados completos (autor, título, periódico, volume, número, páginas, ano, DOI/link)?</li>
+                <li>Critérios éticos de publicação?</li>
+              </ul>
+              <label><input type="checkbox" class="chk"> Dados completos + DOI/link.</label><br/>
+              <label><input type="checkbox" class="chk"> Ética ok.</label>
+            </div>
+            <div class="card" style="background:#f7fbff; border:1px dashed #b3d9ff">
+              <h3>Resultado do Checklist</h3>
+              <p><strong><span id="yes">0</span></strong> critérios “SIM” • <strong><span id="no">0</span></strong> critérios “NÃO”</p>
+              <p class="note">Dica: &gt; 3 “NÃO” → busque outro artigo.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORGANIZAR -->
+      <section class="screen" id="organizar">
+        <div class="card">
+          <h2>4. Como Salvar, Organizar e Citar Artigos do SciELO</h2>
+          <h3>4.1. Salvando Artigos de Forma Eficiente</h3>
+          <ul class="list">
+            <li>Baixe o PDF do texto completo;</li>
+            <li>Nomeie: <code>SOBRENOMEAutor_Ano_TituloResumido.pdf</code> (ex.: <code>FREIRE_2019_EducacaoLiberadora.pdf</code>);</li>
+            <li>Crie pastas: <em>Referências Gerais</em>, <em>Referências Selecionadas</em>, <em>Citações Relevantes</em>;</li>
+            <li>Guarde também o link permanente (DOI).</li>
+          </ul>
+
+          <h3>4.2. Organizando as Referências</h3>
+          <p>Use uma planilha com colunas:</p>
+          <ul class="list">
+            <li>Autor(es); Ano; Título do artigo; Periódico; Volume/Número/Páginas; Link/DOI; Resumo; Palavras‑chave.</li>
+          </ul>
+          <p><strong>Exemplo prático (Pedagogia):</strong> “Analisa o impacto do ensino híbrido na formação docente; aplicável ao capítulo sobre metodologias ativas”.</p>
+
+          <h3>4.3. Uso de Gerenciadores de Referências</h3>
+          <p>Mendeley, Zotero e EndNote:</p>
+          <ul class="list">
+            <li>Inserem citações no Word automaticamente;</li>
+            <li>Geram referências no padrão ABNT;</li>
+            <li>Armazenam PDFs com anotações.</li>
+          </ul>
+          <p>Em alguns casos, o SciELO disponibiliza saída ABNT.</p>
+
+          <h3>4.4. Citando Corretamente em ABNT</h3>
+          <p>Segundo a <strong>ABNT NBR 6023:2018</strong>:</p>
+          <div class="card" style="background:#f8fafc">
+            <code style="white-space:pre-line">SOBRENOME, Nome do autor. Título do artigo: subtítulo (se houver).
+Título do periódico, local de publicação, volume, número, páginas inicial-final, mês abreviado, ano. Disponível em: &lt;link/DOI&gt;. Acesso em: dia mês abreviado. ano.</code>
+          </div>
+          <p><strong>Exemplo:</strong> FREIRE, Paulo. Educação e mudança. <em>Revista Brasileira de Educação</em>, Rio de Janeiro, v. 14, n. 40, p. 45‑58, jan./mar. 2019. Disponível em: &lt;https://doi.org/10.xxxx/xxxx&gt;. Acesso em: 10 ago. 2025.</p>
+          <p class="note">Sempre anote a <strong>data de acesso</strong> no momento da pesquisa.</p>
+
+          <h3>4.5. Benefícios Dessa Organização</h3>
+          <ul class="list">
+            <li>Evita perda de material relevante;</li>
+            <li>Facilita a escrita do TCC;</li>
+            <li>Garante padronização e qualidade;</li>
+            <li>Reduz risco de erro ou plágio acidental.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- PASSOS -->
+      <section class="screen" id="passos">
+        <div class="card">
+          <h2>5. Passo a Passo para Salvar, Organizar e Citar</h2>
+          <h3>5.1. Etapas do Processo</h3>
+          <ol class="list">
+            <li><strong>Localizar</strong> — entre no SciELO; use palavras‑chave; aplique filtros;</li>
+            <li><strong>Avaliar</strong> — título/resumo; pertinência; atualidade; checklist;</li>
+            <li><strong>Salvar</strong> — baixe o PDF; nomeie; guarde o DOI;</li>
+            <li><strong>Organizar</strong> — pastas (Gerais, Selecionadas, Citações);</li>
+            <li><strong>Registrar</strong> — planilha/gerenciador com dados completos;</li>
+            <li><strong>Citar</strong> — modelo ABNT e data de acesso.</li>
+          </ol>
+
+          <h3>5.2. Modelo Visual de Registro (Planilha)</h3>
+          <table>
+            <thead><tr><th>Autor(es)</th><th>Ano</th><th>Título do Artigo</th><th>Periódico</th><th>Vol./Nº/Pág.</th><th>DOI/Link</th><th>Resumo curto</th><th>Palavras‑chave</th></tr></thead>
+            <tbody><tr><td>FREIRE, Paulo</td><td>2019</td><td>Educação e mudança</td><td>Revista Brasileira de Educação</td><td>v.14, n.40, p.45‑58</td><td>https://doi.org/xxxxx</td><td>Analisa papel transformador da educação</td><td>educação; mudança; pedagogia</td></tr></tbody>
+          </table>
+
+          <h3>5.3. Como Evitar Erros Comuns</h3>
+          <ul class="list">
+            <li>Não confiar apenas na memória: salve e nomeie na hora;</li>
+            <li>Não adiar a anotação: registre a referência imediatamente;</li>
+            <li>Evitar títulos genéricos em arquivos;</li>
+            <li>Manter backup em nuvem (Drive/OneDrive/Dropbox).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ERROS -->
+      <section class="screen" id="erros">
+        <div class="card">
+          <h2>6. Erros Frequentes ao Pesquisar no SciELO e Como Evitá-los</h2>
+          <h3>6.1. Utilizar palavras‑chave genéricas ou mal definidas</h3>
+          <p><strong>Problema:</strong> muitos resultados irrelevantes. <strong>Solução:</strong> termos específicos + operadores.</p>
+
+          <h3>6.2. Ignorar os filtros de busca</h3>
+          <p><strong>Problema:</strong> artigos desatualizados/fora do escopo. <strong>Solução:</strong> filtre por data/área.</p>
+
+          <h3>6.3. Escolher artigos apenas pelo título</h3>
+          <p><strong>Problema:</strong> título não representa conteúdo. <strong>Solução:</strong> leia o resumo e verifique método e conclusões.</p>
+
+          <h3>6.4. Desconsiderar a metodologia da pesquisa</h3>
+          <p><strong>Problema:</strong> metodologia frágil compromete credibilidade. <strong>Solução:</strong> confirme método, amostra e análise.</p>
+
+          <h3>6.5. Não verificar a atualidade das informações</h3>
+          <p><strong>Problema:</strong> dados ultrapassados. <strong>Solução:</strong> priorize estudos recentes e valide dados.</p>
+
+          <h3>6.6. Citar sem seguir o padrão ABNT</h3>
+          <p><strong>Problema:</strong> referências incompletas. <strong>Solução:</strong> registre dados completos + data de acesso.</p>
+
+          <h3>6.7. Não salvar o artigo imediatamente</h3>
+          <p><strong>Solução:</strong> baixe o PDF e guarde o DOI na hora.</p>
+
+          <h3>6.8. Falta de organização dos arquivos</h3>
+          <p><strong>Solução:</strong> nomes padronizados e pastas temáticas.</p>
+
+          <h3>6.9. Usar o SciELO como única fonte</h3>
+          <p><strong>Solução:</strong> complemente com Google Acadêmico, ERIC, CAPES Periódicos.</p>
+
+          <h3>6.10. Copiar trechos sem contextualizar</h3>
+          <p><strong>Solução:</strong> integre cada citação ao argumento central.</p>
+
+          <p class="note"><strong>Resumo Preventivo:</strong> planejamento, análise crítica e registro cuidadoso garantem uma pesquisa sólida e defensável perante a banca.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>Guia SciELO – SPA claro (conteúdo completo). ©</footer>
+  </div>
+
+  <script>
+    // SPA router: show only the selected screen (no scroll)
+    const screens = Array.from(document.querySelectorAll('.screen'));
+    const nav = document.getElementById('nav');
+    function show(id){
+      screens.forEach(s=>s.classList.toggle('active', s.id===id));
+      document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active', a.dataset.screen===id));
+      history.pushState({}, '', '#'+id);
+      // reset local search count
+    }
+    nav.addEventListener('click', (e)=>{
+      const a = e.target.closest('a[data-screen]');
+      if(!a) return;
+      show(a.dataset.screen);
+    });
+    // on load, go to hash if present
+    const initial = (location.hash||'').replace('#','');
+    if(initial && document.getElementById(initial)) show(initial);
+
+    // Open SciELO
+    document.getElementById('openScielo').addEventListener('click', ()=>{
+      window.open('https://scielo.org', '_blank');
+    });
+
+    // Example open
+    document.querySelectorAll('[data-open]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const q = btn.getAttribute('data-open');
+        const url = 'https://search.scielo.org/?q=' + encodeURIComponent(q);
+        window.open(url, '_blank');
+      });
+    });
+
+    // Checklist counters
+    function update(){
+      const chks = Array.from(document.querySelectorAll('#criterios .chk'));
+      const yes = chks.filter(c=>c.checked).length;
+      const no  = chks.length - yes;
+      const y = document.getElementById('yes'); const n = document.getElementById('no');
+      if(y && n){ y.textContent = yes; n.textContent = no; }
+    }
+    document.addEventListener('change', (e)=>{ if(e.target.classList.contains('chk')) update(); });
+    update();
+// === Global full-guide search (across all screens) ===
+    const globalInput = document.getElementById('globalQ');
+    const clearBtn = document.getElementById('clearSearch');
+    const resultsBox = document.getElementById('searchResults');
+
+    // Build index: id, title (h2 text), text (plain)
+    function buildIndex(){
+      const sections = Array.from(document.querySelectorAll('.screen'));
+      return sections.map(sec => {
+        const titleEl = sec.querySelector('h2');
+        const title = (titleEl ? titleEl.textContent.trim() : sec.id);
+        const text = sec.innerText.replace(/\s+/g, ' ').trim();
+        return { id: sec.id, title, text };
+      });
+    }
+    const indexData = buildIndex();
+
+    function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+    function makeSnippet(text, term){
+      // Find first occurrence; return ~110 chars around it
+      const pos = text.toLowerCase().indexOf(term.toLowerCase());
+      if(pos === -1){ return text.slice(0, 140) + (text.length>140?'…':''); }
+      const start = Math.max(0, pos - 60);
+      const end   = Math.min(text.length, pos + term.length + 60);
+      const raw = (start>0?'…':'') + text.slice(start, end) + (end<text.length?'…':'');
+      const rx = new RegExp(escapeRegExp(term), 'ig');
+      return raw.replace(rx, m => '<mark>'+m+'</mark>');
+    }
+
+    function runSearch(q){
+      const term = q.trim();
+      if(term.length < 2){
+        resultsBox.style.display = 'none';
+        resultsBox.innerHTML = '';
+        return;
+      }
+      const rx = new RegExp(escapeRegExp(term), 'ig');
+      const hits = indexData.map(doc => {
+        const count = (doc.text.match(rx)||[]).length;
+        return { ...doc, count };
+      }).filter(d => d.count > 0)
+        .sort((a,b)=> b.count - a.count);
+
+      if(hits.length === 0){
+        resultsBox.style.display = 'block';
+        resultsBox.innerHTML = '<div class="note">Nenhum resultado para <strong>'+term.replace(/</g,'&lt;')+'</strong>.</div>';
+        return;
+      }
+
+      const items = hits.slice(0, 20).map(h => {
+        const snip = makeSnippet(h.text, term);
+        return (
+          '<div class="result-item" data-target="'+h.id+'" data-term="'+term.replace(/"/g,'&quot;')+'">' +
+            '<div class="result-title">'+h.title+'</div>' +
+            '<div class="result-meta">'+h.count+' ocorrência'+(h.count!==1?'s':'')+' nesta seção</div>' +
+            '<div class="result-snippet">'+snip+'</div>' +
+          '</div>'
+        );
+      }).join('');
+
+      resultsBox.style.display = 'block';
+      resultsBox.innerHTML = '<div style="font-weight:700; margin-bottom:6px">Resultados</div>' + items;
+
+      // Click to open section and soft-flash its first card
+      resultsBox.querySelectorAll('.result-item').forEach(div => {
+        div.addEventListener('click', () => {
+          const id = div.getAttribute('data-target');
+          const term = div.getAttribute('data-term') || '';
+          show(id); // SPA screen switch (no section scroll)
+          // Try to scroll to the first match inside the active section, if present
+          const active = document.getElementById(id);
+          // Try to find a paragraph containing the term
+          const walker = document.createTreeWalker(active, NodeFilter.SHOW_TEXT, null);
+          let node = null; let firstTextNode = null;
+          const lower = term.toLowerCase();
+          while((node = walker.nextNode())){
+            if(node.nodeValue && node.nodeValue.toLowerCase().includes(lower)){
+              firstTextNode = node; break;
+            }
+          }
+          if(firstTextNode){
+            // Wrap the single first occurrence with a temporary <mark> for visibility
+            const parent = firstTextNode.parentElement;
+            const original = parent.innerHTML;
+            const rx1 = new RegExp(escapeRegExp(term), 'i');
+            parent.innerHTML = original.replace(rx1, m => '<mark>'+m+'</mark>');
+            parent.scrollIntoView({behavior:'smooth', block:'center'});
+            // Flash the card container if any
+            const card = active.querySelector('.card');
+            if(card){
+              card.classList.add('highlight-flash');
+              setTimeout(()=>card.classList.remove('highlight-flash'), 900);
+            }
+            // Remove the temporary mark after 2s to avoid accumulating tags
+            setTimeout(()=>{ parent.innerHTML = original; }, 2000);
+          }else{
+            // No text node found; just flash the card
+            const card = active.querySelector('.card');
+            if(card){
+              card.classList.add('highlight-flash');
+              setTimeout(()=>card.classList.remove('highlight-flash'), 900);
+            }
+          }
+        });
+      });
+    }
+
+    globalInput.addEventListener('input', e => runSearch(e.target.value));
+    clearBtn.addEventListener('click', ()=>{
+      globalInput.value = '';
+      resultsBox.style.display = 'none';
+      resultsBox.innerHTML = '';
+      globalInput.focus();
+    });
+
+  </script>
+</body>
+</html>
